@@ -22,7 +22,7 @@
           <td>
             <div class="img-wrap">
               <img :src="item.album.picUrl" alt="">
-              <span class="iconfont icon-play"></span>
+              <span class="iconfont icon-play" @click="playMusic(item.id)"></span>
             </div>
           </td>
           <td>
@@ -74,6 +74,18 @@ export default {
         console.log(res)
         this.songlist = res.data.data
 
+      })
+    },
+    playMusic(id){
+      axios({
+        url :'https://autumnfish.cn/song/url',
+        method : 'get',
+        params:{
+          id
+        }
+      }).then(res => {
+        let url = res.data.data[0].url
+        this.$parent.musicUrl = url
       })
     }
   },

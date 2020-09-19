@@ -11,10 +11,7 @@ const PlayLists = () => import('@/views/PlayLists')
 const songs = () => import('@/views/Songs')
 const mvs = () => import('@/views/Mvs')
 const result = () => import('@/views/result')
-const originlPush = VueRouter.prototype.replace
-VueRouter.prototype.replace = function push(location) {
-  return originlPush.call(this,location).catch(err=>err)
-}
+const playlist = () => import('@/views/playlist')
 
 const routes = [
   {
@@ -40,13 +37,24 @@ const routes = [
   {
     path: '/result',
     component: result
+  },
+  {
+    path: '/playlist',
+    component: playlist
   }
 ]
 
+
+const originalPush = VueRouter.prototype.push
+VueRouter.prototype.push = function push(location) {
+  return originalPush.call(this, location).catch(err => err)
+}
 //创建路由实例
 const router =new VueRouter({
   mode : 'history' ,
   routes
 })
 
-export default router
+
+
+export default router;

@@ -84,6 +84,7 @@ export default {
   },
   created() {
     //轮播图
+    // Promise.all()
     axios({
       url :'https://autumnfish.cn/banner',
       method : 'get',
@@ -119,6 +120,7 @@ export default {
   },
   methods : {
     playMusic(id){
+      // async await
       axios({
         url :'https://autumnfish.cn/song/url',
         method: 'get' ,
