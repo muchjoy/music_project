@@ -33,13 +33,92 @@
     <el-tabs v-model="activeIndex">
       <el-tab-pane label="歌曲列表" name="list">
       <!--歌曲列表 -->
-
-
+        <table class="el-table playlit-table">
+          <thead>
+          <th></th>
+          <th></th>
+          <th>音乐标题</th>
+          <th>歌手</th>
+          <th>专辑</th>
+          <th>时长</th>
+          </thead>
+        </table>
+          <tr class="el-table__row" v-for="(item , index) in lists.tracks" :key="index">
+            <td>{{ index+1 }}</td>
+            <td>
+              <div class="img-wrap">
+                <img :src="item.al.picUrl+`?param=70y70`" alt="">
+                <span class="iconfont icon-play"></span>
+              </div>
+            </td>
+            <td>
+              <div class="song-wrap">
+                <div class="name-wrap">
+                  <span>{{ item.name }}</span>
+                  <span class="iconfont icon-mv"></span>
+                </div>
+                <span>{{item.subTitle}}</span>
+              </div>
+            </td>
+            <td>{{ item.ar[0].name }}</td>
+            <td>{{ item.al.name }}</td>
+            <td>{{ item.dt }}</td>
+          </tr>
       </el-tab-pane>
-      <el-tab-pane label="评论" name="comment">
+      <el-tab-pane :label="`评论(${total})`" name="comment">
       <!--评论-->
-
-
+      <div class="comment-wrap">
+        <p class="title">精彩评论<span class="number">({{hotCount}})</span></p>
+        <div class="comments-wrap">
+          <div class="item" v-for="(item , index) in hotcomment" :key="index">
+            <div class="icon-wrap">
+              <img :src="item.user.avatarUrl" alt="">
+            </div>
+            <div class="content-wrap">
+              <div class="content">
+                <span class="name">{{item.user.nickname}} : </span>
+                <span class="comment">{{item.content}}</span>
+              </div>
+              <div class="re-content"  v-for="(items, index) in item.beReplied" :key="index">
+                <span class="name">{{items.user.nickname}} : </span>
+                <span class="comment">{{items.content}}</span>
+              </div>
+              <div class="data">{{item.time | getDate}}</div>
+            </div>
+          </div>
+        </div>
+      </div>
+        <!--最新评论-->
+        <div class="comment-wrap">
+          <p class="title">最新评论<span class="number">({{ total }})</span></p>
+          <div class="comment-wrap">
+            <div class="item" v-for="(item,index) in newcomment" :key="index">
+              <div class="icon-wrap">
+                <img :src="item.user.avatarUrl" alt="">
+              </div>
+              <div class="content-wrap">
+                <div class="content">
+                  <span class="name">{{item.user.nickname}} : </span>
+                  <span class="comment">{{item.content}}</span>
+                </div>
+                <div class="re-content" v-for="(items , index) in item.beReplied" :key="index">
+                  <span class="name">{{items.user.nickname}}</span>
+                  <span class="comment">{{items.content}}</span>
+                </div>
+                <div class="date">{{ item.time | getDate}}</div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <el-pagination
+            @current-change="handleCurrentChange"
+            background
+            layout="prev, pager, next"
+            :total="total"
+            :current-page="page"
+            :page-size="5"
+        >
+        </el-pagination>
       </el-tab-pane>
     </el-tabs>
 
@@ -55,9 +134,20 @@ name: "playlist",
     return {
       lists:{},
       creator: {},
-      activeIndex: 'list'
+      activeIndex: 'list',
+      //热门评论
+      hotcomment : [] ,
+      hotCount : 0,
+      newcomment : [],
+      newCount : 0 ,
+      // 总条数
+      total: 0,
+      // 页码
+      page: 1,
+      limit : 20
     }
   },
+
   async mounted() {
     const { data: res } = await axios({
       url:"https://autumnfish.cn/playlist/detail",
@@ -66,8 +156,55 @@ name: "playlist",
         id : this.$route.query.id
       }
     })
+    console.log(res)
     this.lists = res.playlist
     this.creator = res.playlist.creator
+  },
+  created() {
+    //获取评论详情
+    axios({
+      url : 'https://autumnfish.cn/comment/hot',
+      method : 'get',
+      params : {
+        id : this.$route.query.id,
+        type : 2
+      }
+    }).then(res => {
+      this.hotcomment = res.data.hotComments
+      this.hotCount = res.data.total
+    })
+    //最新评论
+    axios({
+      url : 'https://autumnfish.cn/comment/playlist' ,
+      method : 'get' ,
+      params : {
+        id : this.$route.query.id,
+        limit : 10,
+        offset : 0
+      }
+    }).then( res => {
+      console.log(res)
+      this.newcomment = res.data.comments
+      this.total = res.data.total
+    })
+  },
+  methods : {
+    handleCurrentChange(val) {
+      this.page = val
+      axios({
+        url : 'https://autumnfish.cn/comment/playlist' ,
+        method : 'get' ,
+        params : {
+          id : this.$route.query.id,
+          limit : 10,
+          offset : (this.page-1)*10
+        }
+      }).then( res => {
+        console.log(res)
+        this.newcomment = res.data.comments
+        this.total = res.data.total
+      })
+    }
   },
   filters : {
     getDate(date){

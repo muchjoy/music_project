@@ -53,7 +53,7 @@
       </el-tab-pane>
       <el-tab-pane label="MV" name="mv">
         <div class="items">
-          <div class="item" v-for="(item , index) in mvlist" :key="index">
+          <div class="item" v-for="(item , index) in mvlist" :key="index" @click="toplayMV(item.id)">
             <div class="img-wrap">
               <img :src="item.cover" alt="">
               <div class="num-wrap">
@@ -72,9 +72,13 @@
     </el-tabs>
     <!--分页-->
     <el-pagination
+        @current-change="handleCurrentChange"
         background
         layout="prev, pager, next"
-        :total="1000">
+        :total="total"
+        :current-page="page"
+        :page-size="5"
+    >
     </el-pagination>
   </div>
 </template>
@@ -90,7 +94,11 @@ export default {
       songlist : [] ,
       playList:[],
       mvlist :[],
-      count : 0
+      count : 0 ,
+      page : 1 ,
+      total : 0 ,
+
+
     }
   },
   created() {
@@ -106,6 +114,7 @@ export default {
       console.log(res)
       this.songlist = res.data.result.songs
       this.count = res.data.result.songCount
+      this.total = res.data.result.songCount
     })
   },
   filters: {
@@ -141,6 +150,15 @@ export default {
     //跳转歌单
     toplayList(id){
       this.$router.push(`/playlist?id=${id}`)
+    },
+    //跳转mv
+    toplayMV(id){
+      this.$router.push(`/mv?id=${id}`)
+    },
+
+    handleCurrentChange(val){
+      this.page = val
+
     }
   },
   watch : {
@@ -164,20 +182,25 @@ export default {
         params : {
           keywords: this.$route.query.p,
           type,
-          limit : 10
+          limit : 10,
+          offset : (this.page-1)*10
         }
       }).then( res => {
         console.log(res)
           if(type == 1){
             this.songlist = res.data.result.songs
             this.count = res.data.result.songCount
+            this.total = res.data.result.songCount
 
           }else if(type == 1000){
             this.playList = res.data.result.playlists
             this.count = res.data.result.playlistCount
+            this.total = res.data.result.playlistCount
           }else {
             this.mvlist = res.data.result.mvs
             this.count = res.data.result.mvCount
+            this.total = res.data.result.mvCount
+
           }
       })
 

@@ -151,7 +151,7 @@ export default {
         offset : (this.page-1)*this.limit
         }
       }).then( res => {
-      console.log(res);
+      // console.log(res);
       this.mvlist = res.data.data
       if(res.data.count) this.total = res.data.count
 

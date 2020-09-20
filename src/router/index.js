@@ -12,6 +12,7 @@ const songs = () => import('@/views/Songs')
 const mvs = () => import('@/views/Mvs')
 const result = () => import('@/views/result')
 const playlist = () => import('@/views/playlist')
+const mv = () => import('@/views/mv')
 
 const routes = [
   {
@@ -41,6 +42,10 @@ const routes = [
   {
     path: '/playlist',
     component: playlist
+  },
+  {
+    path: '/mv',
+    component: mv
   }
 ]
 
