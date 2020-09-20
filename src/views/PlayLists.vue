@@ -4,7 +4,7 @@
     <div class="top-card">
       <!--封面-->
       <div class="icon-wrap">
-        <img :src="toplist.coverImgUrl" alt="">
+        <img v-lazy="toplist.coverImgUrl" alt="">
       </div>
       <!--主体内容-->
       <div class="content-wrap">
@@ -18,7 +18,7 @@
           {{toplist.description}}
         </div>
       </div>
-      <img :src="toplist.coverImgUrl" alt="" class="bg">
+      <img v-lazy="toplist.coverImgUrl" alt="" class="bg">
       <div class="bg-mask"></div>
     </div>
     <!--tab栏-->
@@ -48,7 +48,7 @@
                <span class="num">{{item.playCount}}</span>
              </div>
             </div>
-            <img :src="item.coverImgUrl" alt="">
+            <img v-lazy="item.coverImgUrl" alt="">
             <span class="iconfont icon-play"></span>
             <p class="name">{{item.name}}</p>
           </div>

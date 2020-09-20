@@ -21,7 +21,7 @@
           <td>{{ index+1 }}</td>
           <td>
             <div class="img-wrap">
-              <img :src="item.album.picUrl" alt="">
+              <img v-lazy="item.album.picUrl" alt="">
               <span class="iconfont icon-play" @click="playMusic(item.id)"></span>
             </div>
           </td>

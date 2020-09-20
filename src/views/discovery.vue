@@ -4,7 +4,7 @@
     <el-carousel class="" :interval="4000" type="card">
       <!-- 循环获取到的接口数据 -->
       <el-carousel-item v-for="(item, index) in banners" :key="index">
-        <img :src="item.imageUrl" alt="" />
+        <img v-lazy="item.imageUrl" alt="" />
       </el-carousel-item>
     </el-carousel>
     <!--推荐歌单-->
@@ -16,7 +16,7 @@
             <div class="desc-wrap">
             <span class="desc">{{item.copywriter}}</span>
             </div>
-            <img :src="item.picUrl" alt="">
+            <img v-lazy="item.picUrl" alt="">
             <span class="iconfont icon-play"></span>
           </div>
           <p class="name">{{item.name}}</p>
@@ -29,7 +29,7 @@
       <div class="items">
         <div class="item" v-for="(item,index) in songer" :key="index" >
           <div class="img-wrap">
-            <img :src="item.picUrl" alt="">
+            <img v-lazy="item.picUrl" alt="">
             <span @click="playMusic(item.id)" class="iconfont icon-play"></span>
           </div>
           <div class="song-wrap">
@@ -47,9 +47,9 @@
     <div class="mvs">
       <h3 class="title">推荐MV</h3>
       <div class="items">
-        <div class="item" v-for="(item,index) in mvs" :key="index">
+        <div class="item" v-for="(item,index) in mvs" :key="index" @click="playMv(item.id)">
           <div class="img-wrap">
-            <img :src="item.picUrl" alt />
+            <img v-lazy="item.picUrl" alt />
             <span class="iconfont icon-play"></span>
             <div class="num-wrap">
               <div class="iconfont icon-play"></div>
@@ -119,6 +119,10 @@ export default {
     })
   },
   methods : {
+    playMv(id){
+      this.$router.push(`/mv?id=${id}`)
+    },
+
     playMusic(id){
       // async await
       axios({

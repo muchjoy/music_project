@@ -62,9 +62,9 @@
     <!--mv -->
     <div class="mvs">
       <div class="items">
-        <div class="item" v-for="(item , index) in mvlist" :key="index">
+        <div class="item" v-for="(item , index) in mvlist" :key="index" @click="playmv(item.id)">
           <div class="img-wrap">
-            <img :src="item.cover" alt="">
+            <img v-lazy="item.cover" alt="">
             <div class="num-wrap">
               <div class="iconfont icon-play"></div>
               <div class="num">{{item.playCount | getnum}}</div>
@@ -122,7 +122,7 @@ export default {
   },
   watch : {
     area(){
-      console.log(this.area)
+      // console.log(this.area)
       this.getList()
     },
     type(){
@@ -136,6 +136,9 @@ export default {
     handleCurrentChange(val) {
       this.page = val
       this.getList()
+    },
+    playmv(id){
+      this.$router.push(`/mv?id=${id}`)
     },
 
   //发送请求

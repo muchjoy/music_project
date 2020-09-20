@@ -4,7 +4,6 @@
       <h2 class='title'>{{$route.query.p}}</h2>
       <span class="sub-title">找到{{count}}条结果</span>
 
-<!-- <input v-model="input" @input="iptHandler"/>-->
     </div>
       <!--tab栏-->
     <el-tabs v-model="activeIndex">
@@ -97,25 +96,15 @@ export default {
       count : 0 ,
       page : 1 ,
       total : 0 ,
+      pValue:null,
+      type :1
 
 
     }
   },
   created() {
-    axios({
-        url:'https://autumnfish.cn/search',
-        method : 'get' ,
-        params : {
-          keywords: this.$route.query.p,
-          type : 1,
-          limit : 10
-        }
-    }).then( res => {
-      console.log(res)
-      this.songlist = res.data.result.songs
-      this.count = res.data.result.songCount
-      this.total = res.data.result.songCount
-    })
+    this.pValue = this.$route.query.p
+    this.search()
   },
   filters: {
     gettime(num){
@@ -130,8 +119,21 @@ export default {
     }
   },
   methods: {
-    iptHandler() {
-      console.log(this.input)
+    async search(){
+     const {data:res} =  await axios({
+        url:'https://autumnfish.cn/search',
+        method : 'get' ,
+        params : {
+          keywords: this.pValue,
+          type : 1,
+          limit : 20
+        }
+      })
+      this.songlist = res.result.songs
+      this.count = res.result.songCount
+      this.total = res.result.songCount
+
+
     },
     playMusic(id){
       // async await
@@ -156,24 +158,47 @@ export default {
       this.$router.push(`/mv?id=${id}`)
     },
 
-    handleCurrentChange(val){
+    async handleCurrentChange(val) {
       this.page = val
 
+      const {data: res} = await axios({
+        url: 'https://autumnfish.cn/search',
+        method: 'get',
+        params: {
+          keywords: this.pValue,
+          type: this.type,
+          limit: 20,
+          offset: (this.page - 1) * 20
+        }
+      })
+      if (this.type === 1) {
+        this.songlist = res.result.songs
+        this.count = res.result.songCount
+        this.total = res.result.songCount
+
+      } else if (this.type === 1000) {
+        this.playList = res.result.playlists
+        this.count = res.result.playlistCount
+        this.total = res.result.playlistCount
+      } else {
+        this.mvlist = res.result.mvs
+        this.count = res.result.mvCount
+        this.total = res.result.mvCount
+      }
     }
   },
   watch : {
     activeIndex(){
-      console.log(this.activeIndex)
-      let type = 1;
+      this.page = 1
       switch (this.activeIndex){
         case "songs":
-          type = 1;
+          this.type = 1;
           break;
         case "lists":
-          type = 1000;
+          this.type = 1000;
           break;
         case "mv" :
-          type = 1004;
+          this.type = 1004;
           break;
       }
       axios({
@@ -181,18 +206,18 @@ export default {
         method : 'get' ,
         params : {
           keywords: this.$route.query.p,
-          type,
-          limit : 10,
-          offset : (this.page-1)*10
+          type:this.type,
+          limit : 20,
+          offset : (this.page-1)*20
         }
       }).then( res => {
-        console.log(res)
-          if(type == 1){
+
+          if(this.type == 1){
             this.songlist = res.data.result.songs
             this.count = res.data.result.songCount
             this.total = res.data.result.songCount
 
-          }else if(type == 1000){
+          }else if(this.type == 1000){
             this.playList = res.data.result.playlists
             this.count = res.data.result.playlistCount
             this.total = res.data.result.playlistCount
@@ -204,6 +229,14 @@ export default {
           }
       })
 
+    },
+    $route: function (newValue, oldValue) {
+
+      if(newValue.query.p) {
+        this.pValue = newValue.query.p
+        this.search()
+
+      }
     }
   }
 
