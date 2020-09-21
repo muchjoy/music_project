@@ -5,6 +5,7 @@
       <!-- mv -->
       <div class="video-wrap">
         <video
+            autoplay
             controls
             :src="mvcontent.url"
         ></video>
@@ -87,7 +88,7 @@
       <h3 class="title">相关推荐</h3>
       <div class="mvs">
         <div class="items">
-          <div class="item" v-for="(item , index) in mvlist" :key="index">
+          <div class="item" v-for="(item , index) in mvlist" :key="index" @click="pMv(item.id)">
             <div class="img-wrap">
               <img :src="item.cover" alt="" />
               <span class="iconfont icon-play"></span>
@@ -145,6 +146,11 @@ export default {
         this.comments = res.data.comments;
         this.total = res.data.total;
       })
+    },
+    async pMv(id){
+     const {data : res} = await playMv(id)
+      this.mvcontent = res.data
+
     }
   },
   created() {
@@ -162,11 +168,11 @@ export default {
     })
     //相关mv
     mvs(this.$route.query.id).then(res => {
+
       this.mvlist = res.data.mvs
     })
     //评论
     comment(this.$route.query.id,this.page).then(res => {
-      console.log(res)
       this.comments = res.data.comments
       this.hotcomments = res.data.hotComments
       this.total = res.data.total

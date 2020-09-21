@@ -7,7 +7,6 @@ import 'element-ui/lib/theme-chalk/index.css'
 import VueLazyload from "vue-lazyload";
 
 // 导入全局初始化样式
-// import '@/style/base.scss'
 import '@/assets/index.css'
 
 Vue.config.productionTip = false

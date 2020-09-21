@@ -4,7 +4,7 @@
     <div class="top-card">
       <!--封面-->
       <div class="icon-wrap">
-        <img v-lazy="toplist.coverImgUrl" alt="">
+        <img :src="toplist.coverImgUrl" alt="">
       </div>
       <!--主体内容-->
       <div class="content-wrap">
@@ -18,7 +18,7 @@
           {{toplist.description}}
         </div>
       </div>
-      <img v-lazy="toplist.coverImgUrl" alt="" class="bg">
+      <img :src="toplist.coverImgUrl" alt="" class="bg">
       <div class="bg-mask"></div>
     </div>
     <!--tab栏-->
@@ -41,15 +41,16 @@
       </div>
       <div class="tab-content">
         <div class="items">
-          <div class="item" v-for="(item , index) in list" :key="index">
+          <div class="item" v-for="(item , index) in list" :key="index" @click="toplayList(item.id)">
             <div class="img-wrap">
              <div class="num-wrap">
                播放量:
                <span class="num">{{item.playCount}}</span>
              </div>
-            </div>
+
             <img v-lazy="item.coverImgUrl" alt="">
             <span class="iconfont icon-play"></span>
+            </div>
             <p class="name">{{item.name}}</p>
           </div>
         </div>
@@ -121,6 +122,10 @@ export default {
         this.total = res.data.total
         this.list = res.data.playlists
       })
+    },
+    //跳转歌单
+    toplayList(id){
+      this.$router.push(`/playlist?id=${id}`)
     },
     handleCurrentChange(val) {
       this.page = val

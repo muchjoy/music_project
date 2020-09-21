@@ -11,7 +11,7 @@
     <div class="recommend">
       <h3 class="title">推荐歌单</h3>
       <div class="items">
-        <div class="item" v-for="(item , index) in result" :key="index">
+        <div class="item" v-for="(item , index) in result" :key="index" @click="toplayList(item.id)">
           <div class="img-wrap">
             <div class="desc-wrap">
             <span class="desc">{{item.copywriter}}</span>
@@ -90,6 +90,7 @@ export default {
       method : 'get',
 
     }).then(res => {
+      console.log(res)
       this.banners = res.data.banners
     })
 
@@ -136,7 +137,11 @@ export default {
         // console.log(this.$parent.musicUrl)
         this.$parent.musicUrl = url
       })
-    }
+    },
+    //跳转歌单
+    toplayList(id){
+      this.$router.push(`/playlist?id=${id}`)
+    },
   }
 }
 

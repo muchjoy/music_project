@@ -21,7 +21,7 @@
           <td>{{ index+1 }}</td>
           <td>
             <div class="img-wrap">
-              <img v-lazy="item.album.picUrl" alt="">
+              <img v-lazy ="item.album.picUrl" alt="">
               <span class="iconfont icon-play" @click="playMusic(item.id)"></span>
             </div>
           </td>
@@ -29,7 +29,7 @@
             <div class="song-wrap">
               <div class="name-wrap">
                 <span>{{item.name}}</span>
-                <span class="iconfont icon-mv"></span>
+                <span class="iconfont icon-mv" v-if="item.mvid !== 0" @click="playMv(item.mvid)"></span>
               </div>
               <span></span>
             </div>
@@ -71,7 +71,7 @@ export default {
           type : this.tag
         }
       }).then( res => {
-        console.log(res)
+
         this.songlist = res.data.data
 
       })
@@ -87,6 +87,9 @@ export default {
         let url = res.data.data[0].url
         this.$parent.musicUrl = url
       })
+    },
+    playMv(id){
+      this.$router.push(`/mv?id=${id}`)
     }
   },
   filters : {

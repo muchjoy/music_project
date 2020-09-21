@@ -42,12 +42,12 @@
           <th>专辑</th>
           <th>时长</th>
           </thead>
-        </table>
-          <tr class="el-table__row" v-for="(item , index) in lists.tracks" :key="index">
+          <tbody>
+          <tr class="el-table__row" v-for="(item , index) in lists.tracks" :key="index" >
             <td>{{ index+1 }}</td>
             <td>
-              <div class="img-wrap">
-                <img :src="item.al.picUrl+`?param=70y70`" alt="">
+              <div class="img-wrap" @click="playMusic(item.id)">
+                <img v-lazy="item.al.picUrl" alt="">
                 <span class="iconfont icon-play"></span>
               </div>
             </td>
@@ -55,7 +55,7 @@
               <div class="song-wrap">
                 <div class="name-wrap">
                   <span>{{ item.name }}</span>
-                  <span class="iconfont icon-mv"></span>
+                  <span class="iconfont icon-mv" v-if="item.mv !== 0" @click="playMv(item.mv)"></span>
                 </div>
                 <span>{{item.subTitle}}</span>
               </div>
@@ -64,6 +64,8 @@
             <td>{{ item.al.name }}</td>
             <td>{{ item.dt }}</td>
           </tr>
+          </tbody>
+        </table>
       </el-tab-pane>
       <el-tab-pane :label="`评论(${total})`" name="comment">
       <!--评论-->
@@ -156,7 +158,7 @@ name: "playlist",
         id : this.$route.query.id
       }
     })
-    console.log(res)
+
     this.lists = res.playlist
     this.creator = res.playlist.creator
   },
@@ -183,7 +185,7 @@ name: "playlist",
         offset : 0
       }
     }).then( res => {
-      console.log(res)
+
       this.newcomment = res.data.comments
       this.total = res.data.total
     })
@@ -204,6 +206,21 @@ name: "playlist",
         this.newcomment = res.data.comments
         this.total = res.data.total
       })
+    },
+    playMusic(id){
+      axios({
+        url :'https://autumnfish.cn/song/url',
+        method : 'get',
+        params:{
+          id
+        }
+      }).then(res => {
+        let url = res.data.data[0].url
+        this.$parent.musicUrl = url
+      })
+    },
+    playMv(id){
+      this.$router.push(`/mv?id=${id}`)
     }
   },
   filters : {
