@@ -129,7 +129,12 @@
 </template>
 
 <script>
-import axios from 'axios'
+
+
+import {getList , commentHot , commentNow} from '@/network/playlist'
+
+//播放音乐
+import {getMusicUrl} from '@/network/playMusic'
 export default {
 name: "playlist",
   data(){
@@ -151,91 +156,47 @@ name: "playlist",
   },
 
   async mounted() {
-    const { data: res } = await axios({
-      url:"https://autumnfish.cn/playlist/detail",
-      method : 'get',
-      params : {
-        id : this.$route.query.id
-      }
-    })
-
+    const { data: res } = await getList(this.$route.query.id)
     this.lists = res.playlist
     this.creator = res.playlist.creator
   },
   created() {
     //获取评论详情
-    axios({
-      url : 'https://autumnfish.cn/comment/hot',
-      method : 'get',
-      params : {
-        id : this.$route.query.id,
-        type : 2
-      }
-    }).then(res => {
-      this.hotcomment = res.data.hotComments
-      this.hotCount = res.data.total
-    })
-    //最新评论
-    axios({
-      url : 'https://autumnfish.cn/comment/playlist' ,
-      method : 'get' ,
-      params : {
-        id : this.$route.query.id,
-        limit : 10,
-        offset : 0
-      }
-    }).then( res => {
+    this.getComment()
 
-      this.newcomment = res.data.comments
-      this.total = res.data.total
-    })
+    //最新评论
+    this.getCommentNow()
   },
   methods : {
-    handleCurrentChange(val) {
-      this.page = val
-      axios({
-        url : 'https://autumnfish.cn/comment/playlist' ,
-        method : 'get' ,
-        params : {
-          id : this.$route.query.id,
-          limit : 10,
-          offset : (this.page-1)*10
-        }
-      }).then( res => {
-        console.log(res)
-        this.newcomment = res.data.comments
-        this.total = res.data.total
-      })
+    //获取评论详情
+    async getComment(){
+      const {data :res} = await commentHot(this.$route.query.id,2)
+      this.hotcomment = res.hotComments
+      this.hotCount = res.total
     },
-    playMusic(id){
-      axios({
-        url :'https://autumnfish.cn/song/url',
-        method : 'get',
-        params:{
-          id
-        }
-      }).then(res => {
-        let url = res.data.data[0].url
-        this.$parent.musicUrl = url
-      })
+    //获取最新的评论
+    async getCommentNow(){
+      const {data :res} = await commentNow(this.$route.query.id, 10, 0)
+      this.newcomment = res.comments
+      this.total = res.total
+    },
+    //切换
+    async handleCurrentChange(val) {
+      this.page = val
+      const {data : res} = await commentNow(this.$route.query.id,10,(this.page-1)*10)
+      this.newcomment = res.comments
+      this.total = res.total
+    },
+    //播放音乐
+    async playMusic(id){
+      const {data : res} = await getMusicUrl(id)
+      let url = res.data[0].url
+      this.$parent.musicUrl = url
     },
     playMv(id){
       this.$router.push(`/mv?id=${id}`)
     }
   },
-  filters : {
-    getDate(date){
-      const dt = new Date(date)
-      const y = dt.getFullYear();
-      const m = dt.getMonth()+1;
-      const r = dt.getDate();
-
-      const hh = dt.getHours();
-      const mm = dt.getMinutes();
-      const ss = dt.getSeconds();
-      return `${y}-${m}-${r} ${hh}:${mm}:${ss}`
-    }
-  }
 }
 </script>
 

@@ -84,6 +84,12 @@
 
 <script>
 import axios from 'axios'
+
+import {searchNow} from '@/network/result'
+
+//播放音乐
+import {getMusicUrl} from '@/network/playMusic'
+
 export default {
   name: "result",
   data(){
@@ -98,56 +104,25 @@ export default {
       total : 0 ,
       pValue:null,
       type :1
-
-
     }
   },
   created() {
     this.pValue = this.$route.query.p
     this.search()
   },
-  filters: {
-    gettime(num){
-      let mm = parseInt(num/1000/60%60);
-      mm=mm<10?"0"+mm:mm
-      let ss = parseInt(num/1000%60)
-      ss=ss<10?"0"+ss:ss
-      return `${mm}:${ss}`
-    },
-    getnum(num){
-      return num=num>10000?parseInt(num/10000)+"万":num
-    }
-  },
+
   methods: {
     async search(){
-     const {data:res} =  await axios({
-        url:'https://autumnfish.cn/search',
-        method : 'get' ,
-        params : {
-          keywords: this.pValue,
-          type : 1,
-          limit : 20
-        }
-      })
+     const {data:res} =  await searchNow(this.pValue,1,20,0)
       this.songlist = res.result.songs
       this.count = res.result.songCount
       this.total = res.result.songCount
-
-
     },
-    playMusic(id){
-      // async await
-      axios({
-        url :'https://autumnfish.cn/song/url',
-        method: 'get' ,
-        params : {
-          id
-        }
-      }).then(res => {
-        let url = res.data.data[0].url
-        // console.log(this.$parent.musicUrl)
-        this.$parent.musicUrl = url
-      })
+    //播放音乐
+    async playMusic(id){
+      const {data : res} = await getMusicUrl(id)
+      let url = res.data[0].url
+      this.$parent.musicUrl = url
     },
     //跳转歌单
     toplayList(id){
@@ -160,17 +135,7 @@ export default {
 
     async handleCurrentChange(val) {
       this.page = val
-
-      const {data: res} = await axios({
-        url: 'https://autumnfish.cn/search',
-        method: 'get',
-        params: {
-          keywords: this.pValue,
-          type: this.type,
-          limit: 20,
-          offset: (this.page - 1) * 20
-        }
-      })
+      const {data: res} = await searchNow(this.pValue,this.type,20,(this.page - 1) * 20)
       if (this.type === 1) {
         this.songlist = res.result.songs
         this.count = res.result.songCount
@@ -188,7 +153,7 @@ export default {
     }
   },
   watch : {
-    activeIndex(){
+    async activeIndex(){
       this.page = 1
       switch (this.activeIndex){
         case "songs":
@@ -201,37 +166,24 @@ export default {
           this.type = 1004;
           break;
       }
-      axios({
-        url:'https://autumnfish.cn/search',
-        method : 'get' ,
-        params : {
-          keywords: this.$route.query.p,
-          type:this.type,
-          limit : 20,
-          offset : (this.page-1)*20
-        }
-      }).then( res => {
-
+      const {data: res} = await searchNow(this.pValue,this.type,20,(this.page - 1) * 20)
           if(this.type == 1){
-            this.songlist = res.data.result.songs
-            this.count = res.data.result.songCount
-            this.total = res.data.result.songCount
+            this.songlist = res.result.songs
+            this.count = res.result.songCount
+            this.total = res.result.songCount
 
           }else if(this.type == 1000){
-            this.playList = res.data.result.playlists
-            this.count = res.data.result.playlistCount
-            this.total = res.data.result.playlistCount
+            this.playList = res.result.playlists
+            this.count = res.result.playlistCount
+            this.total = res.result.playlistCount
           }else {
-            this.mvlist = res.data.result.mvs
-            this.count = res.data.result.mvCount
-            this.total = res.data.result.mvCount
+            this.mvlist = res.result.mvs
+            this.count = res.result.mvCount
+            this.total = res.result.mvCount
 
           }
-      })
-
     },
     $route: function (newValue, oldValue) {
-
       if(newValue.query.p) {
         this.pValue = newValue.query.p
         this.search()

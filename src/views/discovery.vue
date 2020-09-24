@@ -70,8 +70,13 @@
 </template>
 
 <script>
-//导入axios
-import axios from 'axios'
+
+
+import {getBanners , getPersonalized , newsong , recommendMv} from "@/network/discovery";
+
+//播放音乐
+import {getMusicUrl} from '@/network/playMusic'
+
 export default {
   name: "discovery",
   data(){
@@ -84,60 +89,49 @@ export default {
   },
   created() {
     //轮播图
-    // Promise.all()
-    axios({
-      url :'https://autumnfish.cn/banner',
-      method : 'get',
+    this.getbanner()
 
-    }).then(res => {
-      console.log(res)
-      this.banners = res.data.banners
-    })
+    // 推荐歌单
+    this.getplayerlist()
 
-  // 推荐歌单
-    axios({
-      url :'https://autumnfish.cn/personalized',
-      method : 'get',
-      params : {
-        limit : 10
-      }
-    }).then(res => {
-      this.result = res.data.result
-    })
     //最新音乐
-    axios({
-      url : 'https://autumnfish.cn/personalized/newsong',
-      method :'get',
-    }).then(res => {
-      this.songer = res.data.result
-    })
+    this.getNewsongs()
+
     //推荐MV
-    axios({
-      url :'https://autumnfish.cn/personalized/mv',
-      method :'get'
-    }).then(res => {
-        this.mvs = res.data.result
-    })
+    this.getMv()
   },
   methods : {
+    //轮播图
+    async getbanner(){
+      const {data:res} = await getBanners()
+      this.banners = res.banners
+    },
+    //推荐歌单
+    async getplayerlist(){
+      const {data:res} = await getPersonalized()
+      this.result = res.result
+    },
+    //最新音乐
+    async getNewsongs(){
+      const {data : res} = await newsong()
+      this.songer = res.result
+    },
+    //推荐MV
+    async getMv(){
+      const {data : res} = await recommendMv()
+      this.mvs = res.result
+    },
+    //跳转mv页面
     playMv(id){
       this.$router.push(`/mv?id=${id}`)
     },
-
-    playMusic(id){
-      // async await
-      axios({
-        url :'https://autumnfish.cn/song/url',
-        method: 'get' ,
-        params : {
-          id
-        }
-      }).then(res => {
-        let url = res.data.data[0].url
-        // console.log(this.$parent.musicUrl)
-        this.$parent.musicUrl = url
-      })
+    //播放音乐
+    async playMusic(id){
+      const {data : res} = await getMusicUrl(id)
+      let url = res.data[0].url
+      this.$parent.musicUrl = url
     },
+
     //跳转歌单
     toplayList(id){
       this.$router.push(`/playlist?id=${id}`)

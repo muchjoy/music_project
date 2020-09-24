@@ -70,7 +70,7 @@
 </template>
 
 <script>
-import axios from 'axios'
+import {playlist , highquality} from "@/network/PlayLists";
 export default {
   name: "PlayLists",
   data(){
@@ -89,44 +89,26 @@ export default {
   watch:{
    tag(){
     this.tagData();
-    this.tagData();
     this.page = 1
    }
   },
   created() {
     this.tagData();
-    this.tagData()
-
   },
   methods : {
-    tagData(){
-      axios({
-        url :'https://autumnfish.cn/top/playlist/highquality',
-        method : 'get',
-        params : {
-          limit : 1,
-          cat : this.tag
-        }
-      }).then(res => {
-        this.toplist = res.data.playlists[0]
-      })
-      axios({
-        url :'https://autumnfish.cn/top/playlist/',
-        method :'get',
-        params : {
-          limit: 10,
-          offset : (this.page-1)*10,
-          cat : this.tag
-        }
-      }).then(res => {
-        this.total = res.data.total
-        this.list = res.data.playlists
-      })
+    //获取歌单
+    async tagData(){
+      const {data : res0} = await highquality(1, this.tag)
+      this.toplist = res0.playlists[0]
+      const {data : res1} = await playlist(10 , (this.page-1)*10 , this.tag )
+      this.total = res1.total
+      this.list = res1.playlists
     },
     //跳转歌单
     toplayList(id){
       this.$router.push(`/playlist?id=${id}`)
     },
+    //切换
     handleCurrentChange(val) {
       this.page = val
       this.tagData()

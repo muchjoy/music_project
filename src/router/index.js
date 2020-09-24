@@ -56,7 +56,7 @@ VueRouter.prototype.push = function push(location) {
 }
 //创建路由实例
 const router =new VueRouter({
-  mode : 'history' ,
+
   routes
 })
 

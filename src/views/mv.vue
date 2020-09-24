@@ -153,54 +153,30 @@ export default {
 
     }
   },
-  created() {
+  async created() {
     //播放mv  async await
-    playMv(this.$route.query.id).then(res => {
-      this.mvcontent = res.data.data
-    })
+   const {data : res1} =await playMv(this.$route.query.id)
+      this.mvcontent = res1.data
+
     //mv信息
-    mvInfo(this.$route.query.id).then(res => {
-      this.mvinfo = res.data.data
-      //歌手信息
-      playerInfo(this.mvinfo.artists[0].id).then(res => {
-        this.player = res.data.artist
-      })
-    })
+    const {data : res2} = await mvInfo(this.$route.query.id)
+      this.mvinfo = res2.data
+
+    //歌手信息
+    const {data : res3} = await playerInfo(this.mvinfo.artists[0].id)
+      this.player = res3.artist
+
     //相关mv
-    mvs(this.$route.query.id).then(res => {
+    const {data :res4} = await mvs(this.$route.query.id)
+      this.mvlist = res4.mvs
 
-      this.mvlist = res.data.mvs
-    })
     //评论
-    comment(this.$route.query.id,this.page).then(res => {
-      this.comments = res.data.comments
-      this.hotcomments = res.data.hotComments
-      this.total = res.data.total
-    })
+    const {data : res5} = await comment(this.$route.query.id,this.page)
+      this.comments = res5.comments
+      this.hotcomments = res5.hotComments
+      this.total = res5.total
   },
-  filters : {
-    getnum(num) {
-      return num = num > 10000 ? parseInt(num / 10000) + "万" : num
-    },
-    gettime(num) {
-      let mm = parseInt(num / 1000 / 60 % 60);
-      mm = mm < 10 ? "0" + mm : mm
-      let ss = parseInt(num / 1000 % 60)
-      ss = ss < 10 ? "0" + ss : ss
-      return `${mm}:${ss}`
-    },
-    getDate(date) {
-      const dt = new Date(date)
-      const y = dt.getFullYear();
-      const m = dt.getMonth() + 1;
-      const r = dt.getDate();
 
-      const hh = dt.getHours();
-      const mm = dt.getMinutes();
-      const ss = dt.getSeconds();
-      return `${y}-${m}-${r} ${hh}:${mm}:${ss}`
-    }
-  }
   }
 </script>
 

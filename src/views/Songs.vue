@@ -44,7 +44,10 @@
 </template>
 
 <script>
-import axios from 'axios'
+//获取列表
+import { songs } from '@/network/Songs'
+//播放音乐
+import {getMusicUrl} from '@/network/playMusic'
 export default {
   name: "Songs",
   data() {
@@ -57,50 +60,24 @@ export default {
     tag(){
       this.getlist()
     }
-
   },
   created() {
     this.getlist()
   },
   methods: {
-    getlist(){
-      axios({
-        url : 'https://autumnfish.cn/top/song',
-        method : 'get' ,
-        params : {
-          type : this.tag
-        }
-      }).then( res => {
-
-        this.songlist = res.data.data
-
-      })
+    async getlist(){
+      const {data :res} = await songs(this.tag)
+      this.songlist = res.data
     },
-    playMusic(id){
-      axios({
-        url :'https://autumnfish.cn/song/url',
-        method : 'get',
-        params:{
-          id
-        }
-      }).then(res => {
-        let url = res.data.data[0].url
-        this.$parent.musicUrl = url
-      })
+    async playMusic(id){
+      const {data : res} = await getMusicUrl(id)
+      let url = res.data[0].url
+      this.$parent.musicUrl = url
     },
     playMv(id){
       this.$router.push(`/mv?id=${id}`)
     }
   },
-  filters : {
-    gettime(num){
-      let mm = parseInt(num/1000/60%60);
-      mm=mm<10?"0"+mm:mm
-      let ss = parseInt(num/1000%60)
-      ss=ss<10?"0"+ss:ss
-      return `${mm}:${ss}`
-    }
-  }
 }
 </script>
 

@@ -9,6 +9,33 @@ import VueLazyload from "vue-lazyload";
 // 导入全局初始化样式
 import '@/assets/index.css'
 
+//定义全局过滤器
+//处理时间  xx:xx
+Vue.filter('gettime', num =>{
+  let mm = parseInt(num/1000/60%60);
+  mm=mm<10?"0"+mm:mm
+  let ss = parseInt(num/1000%60)
+  ss=ss<10?"0"+ss:ss
+  return `${mm}:${ss}`
+})
+
+//处理播放次数的
+Vue.filter('getnum' , num =>{
+  return num = num>10000?parseInt(num/10000)+"万":num
+})
+
+Vue.filter('getDate' , date =>{
+  const dt = new Date(date)
+  const y = dt.getFullYear();
+  const m = dt.getMonth()+1;
+  const r = dt.getDate();
+
+  const hh = dt.getHours();
+  const mm = dt.getMinutes();
+  const ss = dt.getSeconds();
+  return `${y}-${m}-${r} ${hh}:${mm}:${ss}`
+})
+
 Vue.config.productionTip = false
 
 Vue.use(ElementUI)

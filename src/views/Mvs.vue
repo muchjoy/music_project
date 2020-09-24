@@ -95,7 +95,9 @@
 </template>
 
 <script>
-import axios from 'axios'
+
+import {getMvs} from '@/network/Mvs'
+
 export default {
   name: "Mvs",
   data(){
@@ -115,14 +117,8 @@ export default {
   created() {
     this.getList()
   },
-  filters:{
-    getnum(num){
-      return num=num>10000?parseInt(num/10000)+"万":num
-    }
-  },
   watch : {
     area(){
-      // console.log(this.area)
       this.getList()
     },
     type(){
@@ -142,25 +138,15 @@ export default {
     },
 
   //发送请求
-    getList(){
-    axios({
-      url : 'https://autumnfish.cn/mv/all',
-      method : 'get',
-      params : {
-        limit : this.limit,
-        area : this.area ,
-        type : this.type ,
-        order : this.order,
-        offset : (this.page-1)*this.limit
-        }
-      }).then( res => {
-      // console.log(res);
-      this.mvlist = res.data.data
-      if(res.data.count) this.total = res.data.count
-
-      })
+   async getList(){
+      const {data : res} = await getMvs(this.limit,
+          this.area,
+          this.type,
+          this.order,
+          (this.page-1)*this.limit)
+     this.mvlist = res.data
+     if(res.count) this.total = res.count
     }
-
   },
 }
 </script>
